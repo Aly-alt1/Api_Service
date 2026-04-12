@@ -1,4 +1,4 @@
-﻿using Api_Services_Rest.Dmain.Data;
+using Api_Services_Rest.Dmain.Data;
 using Api_Servixe.Models.Dto;
 using AutoMapper;
 using System;
@@ -35,14 +35,14 @@ namespace Api_Servixe.Mapper
             //CreateMap<perfilUsuario, PerfilUsuariosDto>().ReverseMap();
             CreateMap<perfilUsuario, PerfilUsuariosDto>()
                 .ForMember(dest => dest.IdPerfilUsuario, opt => opt.MapFrom(src => src.idPerfilUsuario))
-                .ForMember(dest => dest.DireccionDto, opt => opt.MapFrom(src=> src.Direcciones.Select(d=> new DireccionDto
+                .ForMember(dest => dest.DireccionDto, opt => opt.MapFrom(src => src.Direcciones.Select(d => new DireccionDto
                 {
                     IdDireccion = d.idDireccion,
                     Calle = d.calle,
                     Colonia = d.colonia,
                     NumExterior = d.NumExterior,
                     NumInterior = d.NumInterior,
-                    Municipio= d.Municipio,
+                    Municipio = d.Municipio,
                     IdPerfilUsuario = d.idPerfilUsuario ?? 0,
                     PerfilUsuariosDto = null
                 })))
@@ -61,7 +61,8 @@ namespace Api_Servixe.Mapper
 
             CreateMap<PerfilUsuariosDto, perfilUsuario>()
                 .ForMember(dest => dest.idPerfilUsuario, opt => opt.MapFrom(src => src.IdPerfilUsuario))
-                .ForMember(dest => dest.Direcciones, o => o.MapFrom(y=> y.DireccionDto.Select(d=>new Direcciones {
+                .ForMember(dest => dest.Direcciones, o => o.MapFrom(y => y.DireccionDto.Select(d => new Direcciones
+                {
                     idDireccion = d.IdDireccion,
                     calle = d.Calle,
                     colonia = d.Colonia,
@@ -85,17 +86,26 @@ namespace Api_Servixe.Mapper
             //CreateMap<Telefonos, TelefonoDto>().ReverseMap();
             CreateMap<Telefonos, TelefonoDto>()
                 .ForMember(dest => dest.IdTelefono, opt => opt.MapFrom(src => src.idTelefono))
-                .ForMember(dest => dest.IdPerfilUsuario, opt=> opt.MapFrom(src => src.idPerfilUsuario ?? 0))   
-                .ForMember(dest=> dest.PerfilUsuarioDto, opt=> opt.Ignore()
+                .ForMember(dest => dest.IdPerfilUsuario, opt => opt.MapFrom(src => src.idPerfilUsuario ?? 0))
+                .ForMember(dest => dest.PerfilUsuarioDto, opt => opt.Ignore()
             );
 
             CreateMap<TelefonoDto, Telefonos>()
                 .ForMember(dest => dest.idTelefono, opt => opt.MapFrom(src => src.IdTelefono))
-                .ForMember(dest => dest.perfilUsuario, opt=> opt.Ignore());
+                .ForMember(dest => dest.perfilUsuario, opt => opt.Ignore());
 
 
             //para los roles
             CreateMap<roles, RolesDto>().ReverseMap();
+            //para usuarios 
+
+            CreateMap<usuarios, UsuarioDto>()
+            .ForMember(dest => dest.UsuarioRolDto, opt => opt.MapFrom(src => src.UsuarioRoles))
+            .ReverseMap();
+
+            CreateMap<UsuarioRoles, UsuarioRolesDto>()
+                .ForMember(dest => dest.RolesDto, opt => opt.MapFrom(src => src.roles))
+                .ReverseMap();
         }
     }
 }
