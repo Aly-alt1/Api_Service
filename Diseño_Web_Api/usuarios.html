@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD Usuarios</title>
+    <link rel="stylesheet" href="DisenioWeb.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="perfiles.html">Perfiles</a>
+        <a href="direcciones.html">CRUD Direcciones</a>
+        <a href="roles.html">Roles</a>
+        <a href="usuarios.html">Usuarios</a>
+        <a href="login.html">Cerrar Sesión</a>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h3>Gestión de Usuarios y Roles</h3>
+            <form id="userForm">
+                <input type="hidden" id="idUser" value="0">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="text" id="username" placeholder="Nombre de Usuario" required>
+                    <input type="password" id="password" placeholder="Contraseña" required>
+                </div>
+                <div style="margin-top: 10px;">
+                    <label><input type="checkbox" id="suspendido"> Usuario Suspendido</label>
+                </div>
+                
+                <h4>Asignar Roles:</h4>
+                <div id="rolesCheckboxes" style="margin-bottom: 15px; display:flex; gap: 15px; flex-wrap: wrap;"></div>
+
+                <button type="submit" class="btn-success" id="btnGuardar">Guardar Usuario y Roles</button>
+                <button type="button" class="btn-primary" onclick="resetForm()">Limpiar</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <table id="tablaUsuarios">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Estado</th>
+                        <th>Roles Asignados</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_USERS = 'https://localhost:44350/api/v1/Usuarios';
+        const API_ROLES = 'https://localhost:44350/api/v1/Roles';
+
+        // Cargar checkboxes de roles disponibles
+        async function cargarCatalogosRoles() {
+            const resp = await fetch(API_ROLES);
+            const roles = await resp.json();
+            const container = document.getElementById('rolesCheckboxes');
+            container.innerHTML = '';
+            roles.forEach(r => {
+                container.innerHTML += `
+                    <label>
+                        <input type="checkbox" name="rolSelect" value="${r.IdRoles}"> 
+                        ${r.StrValor}
+                    </label>`;
+            });
+        }
+
+        async function cargarUsuarios() {
+            const resp = await fetch(`${API_USERS}/All`);
+            const data = await resp.json();
+            const tbody = document.querySelector('#tablaUsuarios tbody');
+            tbody.innerHTML = '';
+            data.forEach(u => {
+                // Mapear los roles que tiene el usuario a un string separado por comas
+                const rolesNombres = (u.UsuarioRolDto || []).map(ur => ur.RolesDto?.StrValor).join(', ') || 'Sin roles';
+                const estado = u.Suspendido ? '<span style="color:red">Suspendido</span>' : '<span style="color:green">Activo</span>';
+                
+                // Extraer un array plano de IDs de roles para pasarlo al botón editar
+                const rolesIds = (u.UsuarioRolDto || []).map(ur => ur.IdRoles);
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${u.IdUser}</td>
+                        <td>${u.Username}</td>
+                        <td>${estado}</td>
+                        <td>${rolesNombres}</td>
+                        <td>
+                            <button onclick="editar(${u.IdUser}, '${u.Username}', '${u.Password}', ${u.Suspendido}, [${rolesIds}])" class="btn-primary">Editar</button>
+                            <button onclick="eliminar(${u.IdUser})" class="btn-danger">Eliminar</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        document.getElementById('userForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('idUser').value);
+            
+            // Obtener roles seleccionados
+            const rolesSeleccionados = Array.from(document.querySelectorAll('input[name="rolSelect"]:checked')).map(cb => {
+                return { IdRoles: parseInt(cb.value) };
+            });
+
+            const dto = {
+                IdUser: id,
+                Username: document.getElementById('username').value,
+                Password: document.getElementById('password').value,
+                Suspendido: document.getElementById('suspendido').checked,
+                UsuarioRolDto: rolesSeleccionados
+            };
+
+            const method = id === 0 ? 'POST' : 'PUT';
+            const url = id === 0 ? `${API_USERS}/Create` : `${API_USERS}/${id}`;
+
+            await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dto)
+            });
+            resetForm();
+            cargarUsuarios();
+        };
+
+        function editar(id, username, password, suspendido, rolesIds) {
+            document.getElementById('idUser').value = id;
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            document.getElementById('suspendido').checked = suspendido;
+            document.getElementById('btnGuardar').innerText = "Actualizar Usuario";
+
+            // Marcar checkboxes correspondientes
+            document.querySelectorAll('input[name="rolSelect"]').forEach(cb => {
+                cb.checked = rolesIds.includes(parseInt(cb.value));
+            });
+        }
+
+        async function eliminar(id) {
+            if (confirm('¿Eliminar este usuario y sus permisos?')) {
+                await fetch(`${API_USERS}/${id}`, { method: 'DELETE' });
+                cargarUsuarios();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('userForm').reset();
+            document.getElementById('idUser').value = "0";
+            document.getElementById('btnGuardar').innerText = "Guardar Usuario y Roles";
+            document.querySelectorAll('input[name="rolSelect"]').forEach(cb => cb.checked = false);
+        }
+
+        window.onload = async () => {
+            await cargarCatalogosRoles(); // Primero cargar los checkboxes
+            cargarUsuarios();             // Luego la tabla
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Perfiles</title>
+    <link rel="stylesheet" href="DisenioWeb.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="perfiles.html">Perfiles</a>
+        <a href="direcciones.html">CRUD Direcciones</a>
+        <a href="roles.html">Roles</a>
+        <a href="#" onclick="logout()">Cerrar Sesión</a>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h3>Registro Completo de Perfil</h3>
+            <form id="perfilForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="text" id="nombre" placeholder="Nombre" required>
+                    <input type="text" id="apellidoPaterno" placeholder="Apellido Paterno" required>
+                    <input type="text" id="apellidoMaterno" placeholder="Apellido Materno" required>
+                    <input type="text" id="rfc" placeholder="RFC" required>
+                    <input type="date" id="fechaNacimiento" required title="Fecha de Nacimiento">
+                    <input type="number" id="idUsuario" placeholder="ID Usuario Vinculado" required>
+                </div>
+                
+                <h4>Dirección</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="text" id="calle" placeholder="Calle" required>
+                    <input type="text" id="colonia" placeholder="Colonia" required>
+                    <input type="text" id="numInt" placeholder="Núm. Interior">
+                    <input type="text" id="numExt" placeholder="Núm. Exterior">
+                    <input type="text" id="municipio" placeholder="Municipio" required>
+                </div>
+
+                <h4>Teléfono</h4>
+                <input type="text" id="celular" placeholder="Celular (10 dígitos)" pattern="[0-9]{10}">
+                <input type="text" id="casa" placeholder="Teléfono de casa (10 dígitos)" pattern="[0-9]{10}">
+                <input type="text" id="oficina" placeholder="Teléfono de oficina (10 dígitos)" pattern="[0-9]{10}">
+                
+                <br><br>
+                <button type="submit" class="btn-success">Guardar Registro Completo</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Listado de Perfiles (Orden ASC por Cumpleaños)</h3>
+            <table id="tablaPerfiles">
+                <thead>
+                    <tr>
+                        <th>Nombre Completo</th>
+                        <th>RFC</th>
+                        <th>Cumpleaños</th>
+                        <th>Dirección Principal</th>
+                        <th>Teléfono</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://localhost:44350/api/v1';
+
+        async function cargarPerfiles() {
+            const resp = await fetch(`${API_BASE}/PerfilUsuarios/All`);
+            const perfiles = await resp.json();
+            const tbody = document.querySelector('#tablaPerfiles tbody');
+            tbody.innerHTML = '';
+
+            perfiles.forEach(p => {
+                const dir = p.DireccionDto[0] || {};
+                const tel = p.TelefonoDto[0] || {};
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${p.Nombre} ${p.ApellidoPaterno}</td>
+                        <td>${p.Rfc}</td>
+                        <td>${new Date(p.FechaNacimiento).toLocaleDateString()}</td>
+                        <td>${dir.Calle || 'Sin calle'}, Col. ${dir.Colonia || ''}</td>
+                        <td>${tel.Celular || 'N/A'}</td>
+                        <td>
+                            <button onclick="eliminarPerfil(${p.IdPerfilUsuario})" class="btn-danger">Eliminar</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        document.getElementById('perfilForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const perfilData = {
+                Nombre: document.getElementById('nombre').value,
+                ApellidoPaterno: document.getElementById('apellidoPaterno').value,
+                ApellidoMaterno: document.getElementById('apellidoMaterno').value,
+                Rfc: document.getElementById('rfc').value,
+                FechaNacimiento: document.getElementById('fechaNacimiento').value,
+                IdUsuario: document.getElementById('idUsuario').value,
+                DireccionDto: [{
+                    Calle: document.getElementById('calle').value,
+                    Colonia: document.getElementById('colonia').value,
+                    NumInterior: document.getElementById('numInt').value,
+                    NumExterior: document.getElementById('numExt').value,
+                    Municipio: document.getElementById('municipio').value
+                }],
+                TelefonoDto: [{
+                    Celular: document.getElementById('celular').value,
+                    Casa: document.getElementById('casa').value,
+                    Oficina: document.getElementById('oficina').value
+                }]
+            };
+
+            const resp = await fetch(`${API_BASE}/PerfilUsuarios/Create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(perfilData)
+            });
+
+            if (resp.ok) {
+                alert('Perfil creado exitosamente');
+                document.getElementById('perfilForm').reset();
+                cargarPerfiles();
+            }
+        };
+
+        async function eliminarPerfil(id) {
+            if (confirm('¿Seguro que desea eliminar el perfil, su dirección y teléfono?')) {
+                await fetch(`${API_BASE}/PerfilUsuarios/${id}`, { method: 'DELETE' });
+                cargarPerfiles();
+            }
+        }
+
+        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+        window.onload = cargarPerfiles;
+    </script>
+</body>
+</html>

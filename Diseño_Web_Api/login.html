@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Sistema de Perfiles</title>
+    <link rel="stylesheet" href="DisenioWeb.css">
+</head>
+<body>
+    <div class="container" style="max-width: 400px; margin-top: 100px;">
+        <div class="card">
+            <h2>Acceso al Sistema</h2>
+            <form id="loginForm">
+                <input type="text" id="username" placeholder="Usuario" required style="width: 100%;">
+                <input type="password" id="password" placeholder="Contraseña" required style="width: 100%;">
+                <button type="submit" class="btn-primary" style="width: 100%;">Entrar</button>
+                <a href="registros.html">Registrarse</a>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://localhost:44350/api/v1';
+
+        document.getElementById('loginForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const loginInfo = { 
+                Username: document.getElementById('username').value, 
+                Password: document.getElementById('password').value 
+            };
+
+            try {
+                const resp = await fetch(`${API_BASE}/Usuarios/Login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(loginInfo)
+                });
+
+                if (resp.ok) {
+                    const result = await resp.json();
+                    // Guardamos la sesión (Considerando que tu API devuelve el usuario y sus roles)
+                    localStorage.setItem('session', JSON.stringify(result.Usuario));
+                    window.location.href = 'perfiles.html';
+                } else {
+                    alert('Acceso denegado: Usuario suspendido o credenciales incorrectas.');
+                }
+            } catch (error) {
+                console.error('Error en el login:', error);
+                alert('No se pudo conectar con el servidor.');
+            }
+        };
+    </script>
+</body>
+</html>
