@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD Roles</title>
+    <link rel="stylesheet" href="DisenioWeb.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="perfiles.html">Perfiles</a>
+        <a href="direcciones.html">Direcciones</a>
+        <a href="roles.html">Roles</a>
+        <a href="usuarios.html">Usuarios</a>
+        <a href="login.html">Cerrar Sesión</a>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h3>Gestión de Roles</h3>
+            <form id="rolForm">
+                <input type="hidden" id="idRol" value="0">
+                <input type="text" id="strValor" placeholder="Nombre del Rol (Ej. Admin)" required>
+                <input type="text" id="strDescripcion" placeholder="Descripción detallada" required style="width: 100%;">
+                <button type="submit" class="btn-success" id="btnGuardar">Guardar Rol</button>
+                <button type="button" class="btn-primary" onclick="resetForm()">Limpiar</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Buscar Rol por Nombre</h3>
+            <input type="text" id="searchNombre" placeholder="Ingrese nombre a buscar...">
+            <button onclick="buscarRol()" class="btn-primary">Buscar</button>
+            <button onclick="cargarRoles()" class="btn-success">Ver Todos</button>
+        </div>
+
+        <div class="card">
+            <table id="tablaRoles">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre del Rol</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="Roles.js"></script>
+</body>
+</html>

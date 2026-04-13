@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Usuario - Sistema</title>
+    <link rel="stylesheet" href="DisenioWeb.css">
+</head>
+<body>
+    <div class="container" style="max-width: 500px; margin-top: 50px;">
+        <div class="card">
+            <h2 style="text-align: center;">Crear Cuenta Nueva</h2>
+            <p style="text-align: center; color: #666;">Ingrese sus datos para registrarse en el sistema.</p>
+            
+            <form id="registroForm">
+                <div style="margin-bottom: 15px;">
+                    <label for="username">Nombre de Usuario:</label>
+                    <input type="text" id="username" placeholder="Ej. juan_perez" required style="width: 100%;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" placeholder="Mínimo 6 caracteres" required style="width: 100%;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label for="confirmPassword">Confirmar Contraseña:</label>
+                    <input type="password" id="confirmPassword" placeholder="Repita su contraseña" required style="width: 100%;">
+                </div>
+
+                <button type="submit" class="btn-success" style="width: 100%; font-size: 1.1rem;">Registrar Usuario</button>
+            </form>
+
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="login.html" style="color: var(--primary); text-decoration: none;">¿Ya tienes cuenta? Inicia sesión aquí</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="Registro.js"></script>
+</body>
+</html>

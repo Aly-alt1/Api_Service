@@ -1,0 +1,72 @@
+const API_BASE = 'https://localhost:44350/api/v1/Direcciones';
+
+async function cargarDirecciones() {
+    const resp = await fetch(API_BASE);
+    const data = await resp.json();
+    const tbody = document.querySelector('#tablaDirecciones tbody');
+    tbody.innerHTML = '';
+    data.forEach(d => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${d.IdDireccion}</td>
+                <td>${d.Calle}, Col. ${d.Colonia} (Ext: ${d.NumExterior || 'S/N'})</td>
+                <td>${d.Municipio}</td>
+                <td>${d.IdPerfilUsuario}</td>
+                <td>
+                    <button onclick="editar(${d.IdDireccion}, '${d.Calle}', '${d.Colonia}', '${d.NumInterior||''}', '${d.NumExterior||''}', '${d.Municipio}', ${d.IdPerfilUsuario})" class="btn-primary">Editar</button>
+                    <button onclick="eliminar(${d.IdDireccion})" class="btn-danger">Eliminar</button>
+                </td>
+            </tr>`;
+    });
+}
+
+document.getElementById('direccionForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const id = parseInt(document.getElementById('idDireccion').value);
+    const dto = {
+        IdDireccion: id,
+        Calle: document.getElementById('calle').value,
+        Colonia: document.getElementById('colonia').value,
+        NumInterior: document.getElementById('numInt').value,
+        NumExterior: document.getElementById('numExt').value,
+        Municipio: document.getElementById('municipio').value,
+        IdPerfilUsuario: parseInt(document.getElementById('idPerfil').value)
+    };
+
+    const method = id === 0 ? 'POST' : 'PUT';
+    const url = id === 0 ? `${API_BASE}/Create` : `${API_BASE}/${id}`;
+
+    await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dto)
+    });
+    resetForm();
+    cargarDirecciones();
+};
+
+function editar(id, calle, col, nInt, nExt, mun, idPerfil) {
+    document.getElementById('idDireccion').value = id;
+    document.getElementById('calle').value = calle;
+    document.getElementById('colonia').value = col;
+    document.getElementById('numInt').value = nInt;
+    document.getElementById('numExt').value = nExt;
+    document.getElementById('municipio').value = mun;
+    document.getElementById('idPerfil').value = idPerfil;
+    document.getElementById('btnGuardar').innerText = "Actualizar Dirección";
+}
+
+async function eliminar(id) {
+    if (confirm('¿Eliminar esta dirección?')) {
+        await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+        cargarDirecciones();
+    }
+}
+
+function resetForm() {
+    document.getElementById('direccionForm').reset();
+    document.getElementById('idDireccion').value = "0";
+    document.getElementById('btnGuardar').innerText = "Guardar Dirección";
+}
+
+window.onload = cargarDirecciones;

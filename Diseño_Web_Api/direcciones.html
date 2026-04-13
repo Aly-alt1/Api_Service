@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD Direcciones</title>
+    <link rel="stylesheet" href="DisenioWeb.css">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="perfiles.html">Perfiles</a>
+        <a href="direcciones.html">Direcciones</a>
+        <a href="roles.html">Roles</a>
+        <a href="usuarios.html">Usuarios</a>
+        <a href="login.html">Cerrar Sesión</a>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h3>Gestión de Direcciones</h3>
+            <form id="direccionForm">
+                <input type="hidden" id="idDireccion" value="0">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="text" id="calle" placeholder="Calle" required>
+                    <input type="text" id="colonia" placeholder="Colonia" required>
+                    <input type="text" id="numInt" placeholder="Num. Interior">
+                    <input type="text" id="numExt" placeholder="Num. Exterior">
+                    <input type="text" id="municipio" placeholder="Municipio" required>
+                    <input type="number" id="idPerfil" placeholder="ID del Perfil del Usuario" required>
+                </div>
+                <button type="submit" class="btn-success" id="btnGuardar">Guardar Dirección</button>
+                <button type="button" class="btn-primary" onclick="resetForm()">Limpiar</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Listado de Direcciones</h3>
+            <table id="tablaDirecciones">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Calle y Colonia</th>
+                        <th>Municipio</th>
+                        <th>ID Perfil</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="Direcciones.js"></script>
+</body>
+</html>
